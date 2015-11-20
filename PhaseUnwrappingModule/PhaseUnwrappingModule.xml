@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering</category>
+  <title>Phase Unwrapping</title>
+  <description><![CDATA[This is a CLI module for phase unwrapping]]></description>
+  <version>0.0.1</version>
+  <documentation-url>http://www.example.com/Slicer/Modules/PhaseUnwrappingModule</documentation-url>
+  <license>Slicer</license>
+  <contributor>Junichi Tokuda (BWH)</contributor>
+  <acknowledgements>The module is based on the N-Dimensional Phase Unwrapping filters develoepd by Davis M. Vigneault, Wen-Tung Wang, Michael Tee, David A. Bluemke, and J. Alison Noble.</acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image>
+      <name>inputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input volume]]></description>
+    </image>
+    <image>
+      <name>outputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Output Volume]]></description>
+    </image>
+    <point multiple="true" coordinateSystem="ras">
+      <name>truePhase</name>
+      <label>True Phase Point (QualityGuided only)</label>
+      <longflag>--truephase</longflag>
+      <description><![CDATA[Point in the true phase area]]></description>
+      <default>0,0,0</default>
+    </point>
+  </parameters>
+</executable>
