@@ -36,14 +36,13 @@ int DoIt( int argc, char * argv[], T )
 
   typename InputCastFilterType::Pointer castFilter = InputCastFilterType::New();
   castFilter->SetInput( reader->GetOutput() );
+  castFilter->Update();
   
   typename RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
   rescaleFilter->SetOutputMinimum(0.0);
   rescaleFilter->SetOutputMaximum(vnl_math::pi * 2);
   rescaleFilter->SetInput( castFilter->GetOutput() );
-
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputVolume.c_str() );
+  rescaleFilter->Update();
 
   typename QGFilterType::Pointer qgFilter = QGFilterType::New();
   qgFilter->SetInput( rescaleFilter->GetOutput() );
@@ -66,6 +65,10 @@ int DoIt( int argc, char * argv[], T )
     truePhaseIndex[1] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] / 2;
     }
   qgFilter->SetTruePhase( truePhaseIndex );
+  qgFilter->Update();
+
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( outputVolume.c_str() );
   writer->SetInput( qgFilter->GetOutput() );
   writer->SetUseCompression(1);
   writer->Update();
