@@ -32,5 +32,12 @@
       <description><![CDATA[Point in the true phase area]]></description>
       <default>0,0,0</default>
     </point>
+    <boolean>
+      <name>rescaleOnly</name>
+      <longflag>--rescaleOnly</longflag>
+      <description><![CDATA[If on, only rescaling is performed.]]></description>
+      <label>Rescale Only</label>
+      <default>false</default>
+    </boolean>
   </parameters>
 </executable>

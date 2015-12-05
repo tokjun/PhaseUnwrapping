@@ -39,42 +39,52 @@ int DoIt( int argc, char * argv[], T )
   castFilter->Update();
   
   typename RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
-  rescaleFilter->SetOutputMinimum(0.0);
-  rescaleFilter->SetOutputMaximum(vnl_math::pi * 2);
+  rescaleFilter->SetOutputMinimum(-vnl_math::pi);
+  rescaleFilter->SetOutputMaximum(vnl_math::pi);
   rescaleFilter->SetInput( castFilter->GetOutput() );
   rescaleFilter->Update();
 
-  typename QGFilterType::Pointer qgFilter = QGFilterType::New();
-  qgFilter->SetInput( rescaleFilter->GetOutput() );
-  
-  // Convert the specified true phase point from RAS coordinates to image index
-  typename InputImageType::IndexType truePhaseIndex;
-  if( truePhase.size() > 0 )
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( outputVolume.c_str() );
+
+  if (!rescaleOnly)
     {
-    typename InputImageType::PointType lpsPoint;
-    // RAS to LPS
-    lpsPoint[0] = -truePhase[0][0];
-    lpsPoint[1] = -truePhase[0][1];
-    lpsPoint[2] = truePhase[0][2];
-    reader->GetOutput()->TransformPhysicalPointToIndex(lpsPoint, truePhaseIndex);
+    typename QGFilterType::Pointer qgFilter = QGFilterType::New();
+    qgFilter->SetInput( rescaleFilter->GetOutput() );
+  
+    // Convert the specified true phase point from RAS coordinates to image index
+    typename InputImageType::IndexType truePhaseIndex;
+    if( truePhase.size() > 0 )
+      {
+      typename InputImageType::PointType lpsPoint;
+      // RAS to LPS
+      lpsPoint[0] = -truePhase[0][0];
+      lpsPoint[1] = -truePhase[0][1];
+      lpsPoint[2] = truePhase[0][2];
+      reader->GetOutput()->TransformPhysicalPointToIndex(lpsPoint, truePhaseIndex);
+      }
+    else
+      {
+      std::cerr << "No truePhase point specified. Image center is used instead." << std::endl;
+      truePhaseIndex[0] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] / 2;
+      truePhaseIndex[1] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] / 2;
+      }
+    qgFilter->SetTruePhase( truePhaseIndex );
+    qgFilter->Update();
+    
+    writer->SetInput( qgFilter->GetOutput() );
     }
   else
     {
-    std::cerr << "No truePhase point specified. Image center is used instead." << std::endl;
-    truePhaseIndex[0] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[0] / 2;
-    truePhaseIndex[1] = reader->GetOutput()->GetLargestPossibleRegion().GetSize()[1] / 2;
+    writer->SetInput( rescaleFilter->GetOutput() );
     }
-  qgFilter->SetTruePhase( truePhaseIndex );
-  qgFilter->Update();
 
-  typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputVolume.c_str() );
-  writer->SetInput( qgFilter->GetOutput() );
   writer->SetUseCompression(1);
   writer->Update();
 
   return EXIT_SUCCESS;
 }
+
 
 } // end of anonymous namespace
 
